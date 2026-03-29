@@ -5,9 +5,9 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 import re
 
-# Configuración de Telegram (OJO: Al subir a GitHub borra estas contraseñas de aquí y usa los "Secrets" de GitHub)
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "7609082702:AAHHchc7fCfiN6slTAl9ImwxpaPd8PPh5vQ")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "5825218002")
+# Configuración de Telegram (Los valores se leen directamente de los Secrets en GitHub Actions)
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 # Configuración de los productos y sitios (debes ajustar URLs, tags y clases a las webs reales que quieres raspar)
 PRODUCTOS = [
@@ -46,8 +46,8 @@ def init_db():
 
 def enviar_notificacion_telegram(mensaje):
     """Envía un mensaje a tu teléfono mediante la API de Telegram."""
-    if TELEGRAM_TOKEN == "AQUI_TU_TOKEN_DEL_BOT" or TELEGRAM_CHAT_ID == "AQUI_TU_CHAT_ID":
-        print(f"⚠️ SIMULACIÓN DE NOTIFICACIÓN: {mensaje}")
+    if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
+        print(f"⚠️ SIMULACIÓN DE NOTIFICACIÓN (credenciales no detectadas): {mensaje}")
         return
 
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
