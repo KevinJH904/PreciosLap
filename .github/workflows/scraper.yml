@@ -1,0 +1,47 @@
+name: Scraper de Precios Diario
+
+# Cuándo se ejecuta este código
+on:
+  schedule:
+    # Se ejecuta a las 14:00 UTC (8:00 AM hora CDMX) y 02:00 UTC (8:00 PM hora CDMX)
+    - cron: '0 14,2 * * *'
+  # Permite ejecutarlo manualmente desde GitHub si necesitas probar
+  workflow_dispatch:
+
+# Permisos necesarios para que el bot pueda guardar la base de datos de regreso en el repo
+permissions:
+  contents: write
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar el repositorio (Checkout)
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4
+
+      - name: Ejecutar Scraper Principal
+        env:
+          # Aquí llamamos los secretos de tu Github para que estén seguros
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python main.py
+
+      - name: Guardar base de datos actualizada en el repositorio (Commit changes)
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add precios_laptops.db
+          # Solo guardamos si hubo algún cambio en la base de datos (evita que el código marque error si no bajó nada)
+          git commit -m "🤖 Actualización automática de precios_laptops.db [skip ci]" || echo "No changes to commit"
+          git push origin main
