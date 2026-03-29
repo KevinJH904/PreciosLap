@@ -3,8 +3,8 @@ name: Scraper de Precios Diario
 # Cuándo se ejecuta este código
 on:
   schedule:
-    # Se ejecuta a las 14:00 UTC (8:00 AM hora CDMX) y 02:00 UTC (8:00 PM hora CDMX)
-    - cron: '0 14,2 * * *'
+    # Se ejecuta a las 18:55 UTC (12:55 PM hora CDMX)
+    - cron: '55 18 * * *'
   # Permite ejecutarlo manualmente desde GitHub si necesitas probar
   workflow_dispatch:
 
