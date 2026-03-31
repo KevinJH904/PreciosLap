@@ -63,40 +63,61 @@ def enviar_notificacion_telegram(mensaje):
         print(f"Error enviando notificación: {e}")
 
 def obtener_precio(url, tag, clase):
-    # Un User-Agent es vital para que las tiendas no nos bloqueen de inmediato
-    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    import time
+    user_agents = [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0"
+    ]
     
-    try:
-        # Usamos curl por subprocess debido a que las librerías de Python suelen ser bloqueadas
-        result = subprocess.run([
-            "curl", "-s", "--compressed", "-m", "15",
-            "-H", f"User-Agent: {user_agent}",
-            "-H", "Accept-Language: es-MX,es;q=0.9",
-            url
-        ], capture_output=True, text=True)
+    # Limpiar URL de Amazon para evitar rastros de sesión que causan bloqueos
+    if "amazon" in url.lower():
+        url = re.sub(r'(/dp/[A-Z0-9]+).*', r'\1', url)
         
-        if result.returncode != 0 or not result.stdout:
-            print(f"Error o timeout en curl para la url {url[:50]}... Código: {result.returncode}")
-            return None
-        
-        soup = BeautifulSoup(result.stdout, 'html.parser')
-        
-        # Buscamos el precio con los selectores.
-        # Si 'clase' viene como un CSS selector complejo (con espacios o caracteres especiales), usamos select_one
-        if ' ' in clase or '>' in clase or '.' in clase:
-            elemento_precio = soup.select_one(clase)
-        else:
-            elemento_precio = soup.find(tag, class_=clase)
+    for intento in range(3):
+        try:
+            # Usamos curl por subprocess debido a que las librerías de Python suelen ser bloqueadas
+            result = subprocess.run([
+                "curl", "-s", "--compressed", "-m", "15",
+                "-H", f"User-Agent: {user_agents[intento % len(user_agents)]}",
+                "-H", "Accept-Language: es-MX,es;q=0.9,en-US;q=0.8",
+                "-H", "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+                url
+            ], capture_output=True, text=True)
             
-        if elemento_precio:
-            precio_texto = elemento_precio.get_text()
-            # Limpiamos todo lo que no sea dígito o punto (ej. "$,", extra espacios)
-            precio_limpio = re.sub(r'[^\d.]', '', precio_texto.replace(',', ''))
-            return float(precio_limpio) if precio_limpio else None
-        return None
-    except Exception as e:
-        print(f"Error obteniendo datos de {url}: {e}")
-        return None
+            if result.returncode != 0 or not result.stdout:
+                print(f"Error o timeout en curl para la url {url[:50]}... Código: {result.returncode}")
+                time.sleep(2)
+                continue
+            
+            soup = BeautifulSoup(result.stdout, 'html.parser')
+            
+            # Revisar si saltó captcha de Amazon
+            if "amazon" in url.lower() and "captcha" in result.stdout.lower() and "a-price-whole" not in result.stdout:
+                print("Captcha detectado en Amazon. Reintentando...")
+                time.sleep(3)
+                continue
+            
+            # Buscamos el precio con los selectores.
+            # Si 'clase' viene como un CSS selector complejo (con espacios o caracteres especiales), usamos select_one
+            if ' ' in clase or '>' in clase or '.' in clase:
+                elemento_precio = soup.select_one(clase)
+            else:
+                elemento_precio = soup.find(tag, class_=clase)
+                
+            if elemento_precio:
+                precio_texto = elemento_precio.get_text()
+                # Limpiamos todo lo que no sea dígito o punto (ej. "$,", extra espacios)
+                precio_limpio = re.sub(r'[^\d.]', '', precio_texto.replace(',', ''))
+                return float(precio_limpio) if precio_limpio else None
+                
+            # Si no encontró elemento_precio, reintenta
+            time.sleep(2)
+        except Exception as e:
+            print(f"Error obteniendo datos de {url[:50]}... : {e}")
+            time.sleep(2)
+            
+    return None
 
 def main():
     conn = init_db()
