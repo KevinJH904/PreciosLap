@@ -1,6 +1,7 @@
 import sqlite3
 import requests
 import os
+import subprocess
 from bs4 import BeautifulSoup
 from datetime import datetime
 import re
@@ -63,15 +64,22 @@ def enviar_notificacion_telegram(mensaje):
 
 def obtener_precio(url, tag, clase):
     # Un User-Agent es vital para que las tiendas no nos bloqueen de inmediato
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
-        "Accept-Language": "es-MX,es;q=0.9"
-    }
+    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     
     try:
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
+        # Usamos curl por subprocess debido a que las librerías de Python suelen ser bloqueadas
+        result = subprocess.run([
+            "curl", "-s", "--compressed", "-m", "15",
+            "-H", f"User-Agent: {user_agent}",
+            "-H", "Accept-Language: es-MX,es;q=0.9",
+            url
+        ], capture_output=True, text=True)
+        
+        if result.returncode != 0 or not result.stdout:
+            print(f"Error o timeout en curl para la url {url[:50]}... Código: {result.returncode}")
+            return None
+        
+        soup = BeautifulSoup(result.stdout, 'html.parser')
         
         # Buscamos el precio con los selectores.
         # Si 'clase' viene como un CSS selector complejo (con espacios o caracteres especiales), usamos select_one
