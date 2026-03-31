@@ -17,13 +17,6 @@ PRODUCTOS = [
         "url": "https://www.amazon.com.mx/ASUS-Vivobook-CargaRapida-Rconocimiento-Garantia/dp/B0FKMCBKFM/ref=sr_1_1_sspa?crid=28EAWQFXZ6ZY&dib=eyJ2IjoiMSJ9.Ryckrew1fMet5qlzRvQgHH9QmMgQQWx9AA8Y5h2yv3W5f60mVeaaO5J6VwoK1Gccdgv3rfuhzaHZoc7zuMoLNkNypC9hJ5Kb71hWBA0oZTYmy9OLtmH89t2VkMtqGzNl2YkbwD3xnT6NGTM54BgmBD3eZhqszfXZBGjSEi-ZoLzxRCNFdImO8GB7C7gjXhNzeEhQdQIPYE1q_cr8wVBqZrlHyfGvnPKjeCREGZPUkdG3iFQJTAnQo16P8GK_Ea2Yoz6Hbryi82mCgDoHIUfzxs3u7_fZO8QO6WGu8pXc60I.7Fw04evRybkBwRaa9MnnozHCf2WxvaYgfzg7es177JY&dib_tag=se&keywords=asus+vivobook+s16+ryzen+9&qid=1774803714&sprefix=ASUS+Vivobook+S16%2Caps%2C173&sr=8-1-spons&ufe=app_do%3Aamzn1.fos.e9c905c0-296e-4852-9ea7-c9f4c88300d3&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&psc=1",
         "tag": "span",
         "clase": "a-price-whole"
-    },
-    {
-        "modelo": "Notebook Laptop Machenike L16Air 16'' Gris 16 Gb RAM 512 Gb SSD 120 Hz 2560 Px X 1600 Px QHD Amd Radeon 680m Amd Ryzen 7 7735h Teclado En Español Windows 11 Pro Sistema Español Latino",
-        "tienda": "MercadoLibre MX",
-        "url": "https://www.mercadolibre.com.mx/notebook-laptop-machenike-l16air-16-gris-16-gb-ram-512-gb-ssd-120-hz-2560-px-x-1600-px-qhd-amd-radeon-680m-amd-ryzen-7-7735h-teclado-en-espanol-windows-11-pro-sistema-espanol-latino/p/MLM26851954?pdp_filters=item_id%3AMLM2712346479&matt_tool=17030900#origin=share&sid=share&wid=MLM2712346479&action=copy",
-        "tag": "span",
-        "clase": ".ui-pdp-price__second-line .andes-money-amount__fraction"
     }
 ]
 
