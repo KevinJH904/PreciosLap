@@ -95,6 +95,8 @@ def main():
     cursor = conn.cursor()
     fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
+    mensajes_notificacion = []
+    
     for p in PRODUCTOS:
         print(f"Consultando precio para: {p['modelo']} en {p['tienda']}...")
         precio_actual = obtener_precio(p['url'], p['tag'], p['clase'])
@@ -119,11 +121,11 @@ def main():
                     mensaje = f"📈 <b>SUBIÓ DE PRECIO:</b> {p['modelo']} -> ${precio_actual:,.2f} <i>(Antes: ${ultimo_precio:,.2f})</i>\n🔗 <a href='{p['url']}'>Ver Oferta</a>"
                 
                 print(mensaje.replace("<b>", "").replace("</b>", "").replace("<i>", "").replace("</i>", ""))
-                enviar_notificacion_telegram(mensaje)
+                mensajes_notificacion.append(mensaje)
             else:
                 mensaje = f"🆕 <b>Primer registro de:</b> {p['modelo']} -> ${precio_actual:,.2f}\n🔗 <a href='{p['url']}'>Ver Oferta</a>"
                 print(mensaje.replace("<b>", "").replace("</b>", ""))
-                enviar_notificacion_telegram(mensaje)
+                mensajes_notificacion.append(mensaje)
 
             # Guardar el nuevo precio pase lo que pase
             cursor.execute('''
@@ -136,6 +138,12 @@ def main():
             
     conn.commit()
     conn.close()
+    
+    # Enviar un único mensaje con todas las notificaciones
+    if mensajes_notificacion:
+        mensaje_final = "\n\n".join(mensajes_notificacion)
+        enviar_notificacion_telegram(mensaje_final)
+        
     print("Scraping finalizado y base de datos actualizada.")
 
 if __name__ == "__main__":
